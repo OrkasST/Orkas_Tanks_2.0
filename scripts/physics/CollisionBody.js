@@ -16,7 +16,7 @@ export class CollisionBody {
     */
   }
 
-  checkCollision(body) {
+  checkCollision(body, extended = false) {
     console.log("body: ", body);
     //body object must have the same structure as this.bodies
     for (let i = 0; i < body.length; i++) {
@@ -31,7 +31,7 @@ export class CollisionBody {
             body[i].y2 >= this.bodies[j].y1
           ) {
             //debugger;
-            return true;
+            return extended ? [] : true;
           } else continue; //bodies are rect type but no collision
         }
 
@@ -45,7 +45,7 @@ export class CollisionBody {
             body[i].r + this.bodies[j].r
           ) {
             //debugger;
-            return true;
+            return extended ? [] : true;
           } else continue; //bodies are circle type but no collision
         }
 
@@ -78,7 +78,7 @@ export class CollisionBody {
             ) <= this.bodies[j].r
           ) {
             //debugger;
-            return true;
+            return extended ? [] : true;
           } else continue; //colliding body is rect, this is circle no collision
         }
 
@@ -111,7 +111,7 @@ export class CollisionBody {
             ) <= body[i].r
           ) {
             //debugger;
-            return true;
+            return extended ? [] : true;
           } else continue; //colliding body is circle, this is rect no collision
         }
       }
