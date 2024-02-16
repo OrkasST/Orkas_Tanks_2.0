@@ -96,6 +96,58 @@ console.log(
 
 console.groupEnd();
 
+console.group("\t\tExtended");
+
+let body_7 = new CollisionBody({
+  type: 0, //-- rectangular body
+  x1: 100,
+  y1: 100, //-- first point coordinates
+  x2: 120,
+  y2: 120, //-- second (diagonal) point coordinates
+});
+let body_8 = new CollisionBody({
+  type: 0, //-- rectangular body
+  x1: 120,
+  y1: 115, //-- first point coordinates
+  x2: 140,
+  y2: 140, //-- second (diagonal) point coordinates
+});
+let body_9 = new CollisionBody({
+  type: 0, //-- rectangular body
+  x1: 115,
+  y1: 140, //-- first point coordinates
+  x2: 160,
+  y2: 150, //-- second (diagonal) point coordinates
+});
+let body_10 = new CollisionBody({
+  type: 1, //-- rectangular body
+  x: 90,
+  y: 110, //-- first point coordinates
+  r: 11,
+});
+
+//body_7.extendedCollisionCheck(body_8.bodies)
+console.log(
+  "body_7.extendedCollisionCheck(body_8.bodies): ",
+  body_7.extendedCollisionCheck(body_8.bodies)
+);
+console.log(
+  "body_8.extendedCollisionCheck(body_7.bodies): ",
+  body_8.extendedCollisionCheck(body_7.bodies)
+);
+console.log(
+  "body_8.extendedCollisionCheck(body_9.bodies): ",
+  body_8.extendedCollisionCheck(body_9.bodies)
+);
+console.log(
+  "body_7.extendedCollisionCheck(body_10.bodies): ",
+  body_7.extendedCollisionCheck(body_10.bodies)
+);
+
 console.groupEnd();
 
+//end of Collider Tests
+console.groupEnd();
+
+//end of all tests
 console.groupEnd();

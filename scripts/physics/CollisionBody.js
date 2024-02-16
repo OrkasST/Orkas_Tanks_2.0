@@ -52,30 +52,26 @@ export class CollisionBody {
         if (body[i].type === 0 && this.bodies[j].type === 1) {
           //debugger;
           if (
+            this.bodies[j].x >= body[i].x1 - this.bodies[j].r &&
+            this.bodies[j].x <= body[i].x2 + this.bodies[j].r &&
+            this.bodies[j].y >= body[i].y1 - this.bodies[j].r &&
+            this.bodies[j].y <= body[i].y2 + this.bodies[j].r &&
             Math.sqrt(
-              (body[i].x1 - this.bodies[j].x) *
-                (body[i].x1 - this.bodies[j].x) +
-                (body[i].y1 - this.bodies[j].y) *
-                  (body[i].y1 - this.bodies[j].y)
-            ) <= this.bodies[j].r || //checking if distance from all rectangle points to center of circle is smaller than radius
-            Math.sqrt(
-              (body[i].x1 - this.bodies[j].x) *
-                (body[i].x1 - this.bodies[j].x) +
-                (body[i].y2 - this.bodies[j].y) *
-                  (body[i].y2 - this.bodies[j].y)
-            ) <= this.bodies[j].r ||
-            Math.sqrt(
-              (body[i].x2 - this.bodies[j].x) *
-                (body[i].x2 - this.bodies[j].x) +
-                (body[i].y1 - this.bodies[j].y) *
-                  (body[i].y1 - this.bodies[j].y)
-            ) <= this.bodies[j].r ||
-            Math.sqrt(
-              (body[i].x2 - this.bodies[j].x) *
-                (body[i].x2 - this.bodies[j].x) +
-                (body[i].y2 - this.bodies[j].y) *
-                  (body[i].y2 - this.bodies[j].y)
-            ) <= this.bodies[j].r
+              Math.pow(
+                this.bodies[j].x - (body[i].x1 + (body[i].x2 - body[i].x1) / 2),
+                2
+              ) +
+                Math.pow(
+                  this.bodies[j].y -
+                    (body[i].y1 + (body[i].y2 - body[i].y1) / 2),
+                  2
+                )
+            ) <=
+              Math.sqrt(
+                Math.pow((body[i].x2 - body[i].x1) / 2, 2) +
+                  Math.pow((body[i].y2 - body[i].y1) / 2, 2)
+              ) +
+                this.bodies[j].r
           ) {
             //debugger;
             return true;
@@ -85,30 +81,29 @@ export class CollisionBody {
         if (body[i].type === 1 && this.bodies[j].type === 0) {
           //debugger;
           if (
+            body[i].x >= this.bodies[j].x1 - body[i].r &&
+            body[i].x <= this.bodies[j].x2 + body[i].r &&
+            body[i].y >= this.bodies[j].y1 - body[i].r &&
+            body[i].y <= this.bodies[j].y2 + body[i].r &&
             Math.sqrt(
-              (this.bodies[j].x1 - body[i].x) *
-                (this.bodies[j].x1 - body[i].x) +
-                (this.bodies[j].y1 - body[i].y) *
-                  (this.bodies[j].y1 - body[i].y)
-            ) <= body[i].r || //checking if distance from all rectangle points to center of circle is smaller than radius
-            Math.sqrt(
-              (this.bodies[j].x1 - body[i].x) *
-                (this.bodies[j].x1 - body[i].x) +
-                (this.bodies[j].y2 - body[i].y) *
-                  (this.bodies[j].y2 - body[i].y)
-            ) <= body[i].r ||
-            Math.sqrt(
-              (this.bodies[j].x2 - body[i].x) *
-                (this.bodies[j].x2 - body[i].x) +
-                (this.bodies[j].y1 - body[i].y) *
-                  (this.bodies[j].y1 - body[i].y)
-            ) <= body[i].r ||
-            Math.sqrt(
-              (this.bodies[j].x2 - body[i].x) *
-                (this.bodies[j].x2 - body[i].x) +
-                (this.bodies[j].y2 - body[i].y) *
-                  (this.bodies[j].y2 - body[i].y)
-            ) <= body[i].r
+              Math.pow(
+                body[i].x -
+                  (this.bodies[j].x1 +
+                    (this.bodies[j].x2 - this.bodies[j].x1) / 2),
+                2
+              ) +
+                Math.pow(
+                  body[i].y -
+                    (this.bodies[j].y1 +
+                      (this.bodies[j].y2 - this.bodies[j].y1) / 2),
+                  2
+                )
+            ) <=
+              Math.sqrt(
+                Math.pow((this.bodies[j].x2 - this.bodies[j].x1) / 2, 2) +
+                  Math.pow((this.bodies[j].y2 - this.bodies[j].y1) / 2, 2)
+              ) +
+                body[i].r
           ) {
             //debugger;
             return true;
@@ -132,7 +127,6 @@ export class CollisionBody {
     for (let i = 0; i < body.length; i++) {
       for (let j = 0; j < this.bodies.length; j++) {
         if (body[i].type === 0 && this.bodies[j].type === 0) {
-          console.log("Rects");
           //debugger;
           if (
             this.bodies[j].x1 <= body[i].x2 &&
@@ -186,114 +180,109 @@ export class CollisionBody {
         } else if (body[i].type === 0 && this.bodies[j].type === 1) {
           //debugger;
           if (
+            this.bodies[j].x >= body[i].x1 - this.bodies[j].r &&
+            this.bodies[j].x <= body[i].x2 + this.bodies[j].r &&
+            this.bodies[j].y >= body[i].y1 - this.bodies[j].r &&
+            this.bodies[j].y <= body[i].y2 + this.bodies[j].r &&
             Math.sqrt(
-              (body[i].x1 - this.bodies[j].x) *
-                (body[i].x1 - this.bodies[j].x) +
-                (body[i].y1 - this.bodies[j].y) *
-                  (body[i].y1 - this.bodies[j].y)
-            ) <= this.bodies[j].r || //checking if distance from all rectangle points to center of circle is smaller than radius
-            Math.sqrt(
-              (body[i].x1 - this.bodies[j].x) *
-                (body[i].x1 - this.bodies[j].x) +
-                (body[i].y2 - this.bodies[j].y) *
-                  (body[i].y2 - this.bodies[j].y)
-            ) <= this.bodies[j].r ||
-            Math.sqrt(
-              (body[i].x2 - this.bodies[j].x) *
-                (body[i].x2 - this.bodies[j].x) +
-                (body[i].y1 - this.bodies[j].y) *
-                  (body[i].y1 - this.bodies[j].y)
-            ) <= this.bodies[j].r ||
-            Math.sqrt(
-              (body[i].x2 - this.bodies[j].x) *
-                (body[i].x2 - this.bodies[j].x) +
-                (body[i].y2 - this.bodies[j].y) *
-                  (body[i].y2 - this.bodies[j].y)
-            ) <= this.bodies[j].r
+              Math.pow(
+                this.bodies[j].x - (body[i].x1 + (body[i].x2 - body[i].x1) / 2),
+                2
+              ) +
+                Math.pow(
+                  this.bodies[j].y -
+                    (body[i].y1 + (body[i].y2 - body[i].y1) / 2),
+                  2
+                )
+            ) <=
+              Math.sqrt(
+                Math.pow((body[i].x2 - body[i].x1) / 2, 2) +
+                  Math.pow((body[i].y2 - body[i].y1) / 2, 2)
+              ) +
+                this.bodies[j].r
           ) {
             //debugger;
             if (
-              this.bodies[j].x > body.x2 &&
-              this.bodies[j].y + this.bodies[j].r > body.y1 &&
-              this.bodies[j].y - this.bodies[j].r < body.y2
+              this.bodies[j].x > body[i].x2 &&
+              this.bodies[j].y + this.bodies[j].r > body[i].y1 &&
+              this.bodies[j].y - this.bodies[j].r < body[i].y2
             )
               collidingDirections[0] = 1; //left
             else if (
-              this.bodies[j].x < body.x1 &&
-              this.bodies[j].y + this.bodies[j].r > body.y1 &&
-              this.bodies[j].y - this.bodies[j].r < body.y2
+              this.bodies[j].x < body[i].x1 &&
+              this.bodies[j].y + this.bodies[j].r > body[i].y1 &&
+              this.bodies[j].y - this.bodies[j].r < body[i].y2
             )
               collidingDirections[1] = 1; //right
             else if (
-              this.bodies[j].y > body.y2 &&
-              this.bodies[j].x + this.bodies[j].r > body.x1 &&
-              this.bodies[j].x - this.bodies[j].r < body.x2
+              this.bodies[j].y > body[i].y2 &&
+              this.bodies[j].x + this.bodies[j].r > body[i].x1 &&
+              this.bodies[j].x - this.bodies[j].r < body[i].x2
             )
               collidingDirections[2] = 1; //up
             else if (
-              this.bodies[j].y < body.y1 &&
-              this.bodies[j].x + this.bodies[j].r > body.x1 &&
-              this.bodies[j].x - this.bodies[j].r < body.x2
+              this.bodies[j].y < body[i].y1 &&
+              this.bodies[j].x + this.bodies[j].r > body[i].x1 &&
+              this.bodies[j].x - this.bodies[j].r < body[i].x2
             )
               collidingDirections[3] = 1; //down
           } else continue; //colliding body is rect, this is circle no collision
         } else if (body[i].type === 1 && this.bodies[j].type === 0) {
           //debugger;
           if (
+            body[i].x >= this.bodies[j].x1 - body[i].r &&
+            body[i].x <= this.bodies[j].x2 + body[i].r &&
+            body[i].y >= this.bodies[j].y1 - body[i].r &&
+            body[i].y <= this.bodies[j].y2 + body[i].r &&
             Math.sqrt(
-              (this.bodies[j].x1 - body[i].x) *
-                (this.bodies[j].x1 - body[i].x) +
-                (this.bodies[j].y1 - body[i].y) *
-                  (this.bodies[j].y1 - body[i].y)
-            ) <= body[i].r || //checking if distance from all rectangle points to center of circle is smaller than radius
-            Math.sqrt(
-              (this.bodies[j].x1 - body[i].x) *
-                (this.bodies[j].x1 - body[i].x) +
-                (this.bodies[j].y2 - body[i].y) *
-                  (this.bodies[j].y2 - body[i].y)
-            ) <= body[i].r ||
-            Math.sqrt(
-              (this.bodies[j].x2 - body[i].x) *
-                (this.bodies[j].x2 - body[i].x) +
-                (this.bodies[j].y1 - body[i].y) *
-                  (this.bodies[j].y1 - body[i].y)
-            ) <= body[i].r ||
-            Math.sqrt(
-              (this.bodies[j].x2 - body[i].x) *
-                (this.bodies[j].x2 - body[i].x) +
-                (this.bodies[j].y2 - body[i].y) *
-                  (this.bodies[j].y2 - body[i].y)
-            ) <= body[i].r
+              Math.pow(
+                body[i].x -
+                  (this.bodies[j].x1 +
+                    (this.bodies[j].x2 - this.bodies[j].x1) / 2),
+                2
+              ) +
+                Math.pow(
+                  body[i].y -
+                    (this.bodies[j].y1 +
+                      (this.bodies[j].y2 - this.bodies[j].y1) / 2),
+                  2
+                )
+            ) <=
+              Math.sqrt(
+                Math.pow((this.bodies[j].x2 - this.bodies[j].x1) / 2, 2) +
+                  Math.pow((this.bodies[j].y2 - this.bodies[j].y1) / 2, 2)
+              ) +
+                body[i].r
           ) {
-            //debugger;
+            debugger;
             if (
-              body.x > this.bodies[j].x2 &&
-              body.y + body.r > this.bodies[j].y1 &&
-              body.y - body.r < this.bodies[j].y2
+              body[i].x > this.bodies[j].x2 &&
+              body[i].y + body[i].r > this.bodies[j].y1 &&
+              body[i].y - body[i].r < this.bodies[j].y2
             )
               collidingDirections[0] = 1; //left
             else if (
-              body.x < this.bodies[j].x1 &&
-              body.y + body.r > this.bodies[j].y1 &&
-              body.y - body.r < this.bodies[j].y2
+              body[i].x < this.bodies[j].x1 &&
+              body[i].y + body[i].r > this.bodies[j].y1 &&
+              body[i].y - body[i].r < this.bodies[j].y2
             )
               collidingDirections[1] = 1; //right
             else if (
-              body.y > this.bodies[j].y2 &&
-              body.x + body.r > this.bodies[j].x1 &&
-              body.x - body.r < this.bodies[j].x2
+              body[i].y > this.bodies[j].y2 &&
+              body[i].x + body[i].r > this.bodies[j].x1 &&
+              body[i].x - body[i].r < this.bodies[j].x2
             )
               collidingDirections[2] = 1; //up
             else if (
-              body.y < this.bodies[j].y1 &&
-              body.x + body.r > this.bodies[j].x1 &&
-              body.x - body.r < this.bodies[j].x2
+              body[i].y < this.bodies[j].y1 &&
+              body[i].x + body[i].r > this.bodies[j].x1 &&
+              body[i].x - body[i].r < this.bodies[j].x2
             )
               collidingDirections[3] = 1; //down
           } else continue; //colliding body is circle, this is rect no collision
         }
       }
     }
-    return false;
+    return collidingDirections;
   }
 }
