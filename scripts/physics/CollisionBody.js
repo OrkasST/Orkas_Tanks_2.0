@@ -212,7 +212,30 @@ export class CollisionBody {
             ) <= this.bodies[j].r
           ) {
             //debugger;
-            return true;
+            if (
+              this.bodies[j].x > body.x2 &&
+              this.bodies[j].y + this.bodies[j].r > body.y1 &&
+              this.bodies[j].y - this.bodies[j].r < body.y2
+            )
+              collidingDirections[0] = 1; //left
+            else if (
+              this.bodies[j].x < body.x1 &&
+              this.bodies[j].y + this.bodies[j].r > body.y1 &&
+              this.bodies[j].y - this.bodies[j].r < body.y2
+            )
+              collidingDirections[1] = 1; //right
+            else if (
+              this.bodies[j].y > body.y2 &&
+              this.bodies[j].x + this.bodies[j].r > body.x1 &&
+              this.bodies[j].x - this.bodies[j].r < body.x2
+            )
+              collidingDirections[2] = 1; //up
+            else if (
+              this.bodies[j].y < body.y1 &&
+              this.bodies[j].x + this.bodies[j].r > body.x1 &&
+              this.bodies[j].x - this.bodies[j].r < body.x2
+            )
+              collidingDirections[3] = 1; //down
           } else continue; //colliding body is rect, this is circle no collision
         } else if (body[i].type === 1 && this.bodies[j].type === 0) {
           //debugger;
@@ -243,7 +266,30 @@ export class CollisionBody {
             ) <= body[i].r
           ) {
             //debugger;
-            return true;
+            if (
+              body.x > this.bodies[j].x2 &&
+              body.y + body.r > this.bodies[j].y1 &&
+              body.y - body.r < this.bodies[j].y2
+            )
+              collidingDirections[0] = 1; //left
+            else if (
+              body.x < this.bodies[j].x1 &&
+              body.y + body.r > this.bodies[j].y1 &&
+              body.y - body.r < this.bodies[j].y2
+            )
+              collidingDirections[1] = 1; //right
+            else if (
+              body.y > this.bodies[j].y2 &&
+              body.x + body.r > this.bodies[j].x1 &&
+              body.x - body.r < this.bodies[j].x2
+            )
+              collidingDirections[2] = 1; //up
+            else if (
+              body.y < this.bodies[j].y1 &&
+              body.x + body.r > this.bodies[j].x1 &&
+              body.x - body.r < this.bodies[j].x2
+            )
+              collidingDirections[3] = 1; //down
           } else continue; //colliding body is circle, this is rect no collision
         }
       }
