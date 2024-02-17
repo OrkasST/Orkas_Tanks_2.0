@@ -327,6 +327,7 @@ function shoot(obj, dir) {
         sy: 0,
       },
       lifeTime: 3000,
+      shape: 1,
     })
   );
 }
@@ -544,6 +545,7 @@ class GameObject {
     time = 0,
     lifeTime = "infinite",
     viewRad = 40,
+    shape = 0,
   }) {
     this.tag = tag;
     this.position = position;
@@ -553,14 +555,23 @@ class GameObject {
     this.time = time;
     this.lifeTime = lifeTime;
     this.viewRad = viewRad;
+    this.shape = shape;
 
-    this.collider = new CollisionBody({
-      type: 0,
-      x1: this.position.x,
-      y1: this.position.y,
-      x2: this.position.x + this.params.width,
-      y2: this.position.y + this.params.height,
-    });
+    this.collider =
+      shape === 0
+        ? new CollisionBody({
+            type: 0,
+            x1: this.position.x,
+            y1: this.position.y,
+            x2: this.position.x + this.params.width,
+            y2: this.position.y + this.params.height,
+          })
+        : new CollisionBody({
+            type: 1,
+            x: this.position.x,
+            y: this.position.y,
+            r: this.params.width,
+          });
   }
 }
 
