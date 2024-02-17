@@ -1,3 +1,5 @@
+import { CollisionBody } from "./physics/CollisionBody.js";
+
 //UI elem-s
 const start = document.getElementById("start");
 const starter = document.querySelector(".starter");
@@ -217,10 +219,11 @@ function collisionCheck(objs, shoots) {
   for (let i = 0; i < objs.length; i++) {
     for (let j = 0; j < shoots.length; j++) {
       if (
-        objs[i].position.x + objs[i].params.width >= shoots[j].position.x &&
-        objs[i].position.y + objs[i].params.height >= shoots[j].position.y &&
-        objs[i].position.x <= shoots[j].position.x + shoots[j].params.width &&
-        objs[i].position.y <= shoots[j].position.y + shoots[j].params.height
+        // objs[i].position.x + objs[i].params.width >= shoots[j].position.x &&
+        // objs[i].position.y + objs[i].params.height >= shoots[j].position.y &&
+        // objs[i].position.x <= shoots[j].position.x + shoots[j].params.width &&
+        // objs[i].position.y <= shoots[j].position.y + shoots[j].params.height
+        objs[i].collider.checkCollision(shoots[j].collider.bodies)
       ) {
         if (
           (objs[i].tag === "player" && shoots[j].tag === "player_shoot") ||
@@ -262,15 +265,19 @@ function move(obj) {
     switch (obj.movement.direction) {
       case "up":
         obj.position.y -= obj.movement.speed;
+        obj.collider.move(0, -obj.movement.speed);
         break;
       case "left":
         obj.position.x -= obj.movement.speed;
+        obj.collider.move(-obj.movement.speed);
         break;
       case "down":
         obj.position.y += obj.movement.speed;
+        obj.collider.move(0, obj.movement.speed);
         break;
       case "right":
         obj.position.x += obj.movement.speed;
+        obj.collider.move(obj.movement.speed);
         break;
       default:
         break;
@@ -320,6 +327,7 @@ function shoot(obj, dir) {
         sy: 0,
       },
       lifeTime: 3000,
+      shape: 1,
     })
   );
 }
@@ -537,6 +545,7 @@ class GameObject {
     time = 0,
     lifeTime = "infinite",
     viewRad = 40,
+    shape = 0,
   }) {
     this.tag = tag;
     this.position = position;
@@ -546,6 +555,23 @@ class GameObject {
     this.time = time;
     this.lifeTime = lifeTime;
     this.viewRad = viewRad;
+    this.shape = shape;
+
+    this.collider =
+      shape === 0
+        ? new CollisionBody({
+            type: 0,
+            x1: this.position.x,
+            y1: this.position.y,
+            x2: this.position.x + this.params.width,
+            y2: this.position.y + this.params.height,
+          })
+        : new CollisionBody({
+            type: 1,
+            x: this.position.x,
+            y: this.position.y,
+            r: this.params.width,
+          });
   }
 }
 

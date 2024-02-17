@@ -16,13 +16,27 @@ export class CollisionBody {
     */
   }
 
+  move(x = 0, y = 0) {
+    for (let i = 0; i < this.bodies.length; i++) {
+      if (this.bodies[i].type === 1) {
+        this.bodies[i].x += x;
+        this.bodies[i].y += y;
+      } else {
+        this.bodies[i].x1 += x;
+        this.bodies[i].x2 += x;
+        this.bodies[i].y1 += y;
+        this.bodies[i].y2 += y;
+      }
+    }
+  }
+
   checkCollision(body) {
-    console.log("body: ", body);
+    //console.log("body: ", body);
     //body object must have the same structure as this.bodies
     for (let i = 0; i < body.length; i++) {
       for (let j = 0; j < this.bodies.length; j++) {
         if (body[i].type === 0 && this.bodies[j].type === 0) {
-          console.log("Rects");
+          //console.log("Rects");
           //debugger;
           if (
             body[i].x1 <= this.bodies[j].x2 &&
@@ -115,7 +129,7 @@ export class CollisionBody {
   }
 
   extendedCollisionCheck(body) {
-    console.log("body: ", body);
+    //console.log("body: ", body);
     //body object must have the same structure as this.bodies
 
     let collidingDirections = [0, 0, 0, 0];
@@ -254,7 +268,7 @@ export class CollisionBody {
               ) +
                 body[i].r
           ) {
-            debugger;
+            //debugger;
             if (
               body[i].x > this.bodies[j].x2 &&
               body[i].y + body[i].r > this.bodies[j].y1 &&
