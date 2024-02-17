@@ -1,3 +1,5 @@
+import { CollisionBody } from "../physics/CollisionBody.js";
+
 export class GameObject {
   constructor({
     type = "block", //"entity" | "projectile"
@@ -12,6 +14,8 @@ export class GameObject {
     isCollidable = true,
     isPlayer = false,
     isDestructive = false,
+
+    shape = "rectangle", // "circle" , {type:0/1, x...}
   }) {
     this.x = x;
     this.y = y;
@@ -19,6 +23,7 @@ export class GameObject {
     this.height = height;
     this.radius = radius;
     this.type = type;
+    this.shape = shape;
 
     this.isSpheric = isSpheric;
     this.isStatic = isStatic;
