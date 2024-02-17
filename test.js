@@ -1,4 +1,5 @@
 import { CollisionBody } from "./scripts/physics/CollisionBody.js";
+import { Animation } from "./scripts/utilities/Animation.js";
 
 console.group("TESTS");
 
@@ -147,6 +148,28 @@ console.log(
 console.groupEnd();
 
 //end of Collider Tests
+console.groupEnd();
+
+console.group("\tAnimation");
+
+let animation_1 = new Animation(
+  null,
+  1000,
+  500,
+  50,
+  50,
+  25,
+  0,
+  0,
+  0,
+  false,
+  false
+);
+for (let i = 0; i < 30; i++) animation_1.frame(null, null, 0);
+
+animation_1.frame(null, null, 0);
+
+//end of Animation Tests
 console.groupEnd();
 
 //end of all tests

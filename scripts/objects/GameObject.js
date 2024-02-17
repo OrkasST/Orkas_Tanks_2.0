@@ -8,8 +8,10 @@ export class GameObject {
     y = 0,
     width = 0,
     height = 0,
+    rotation = 0,
     isSpheric = false,
     radius = 0,
+
     isStatic = true,
     isCollidable = true,
     isPlayer = false,
@@ -21,6 +23,7 @@ export class GameObject {
     this.y = y;
     this.width = width;
     this.height = height;
+    this.rotation = rotation;
     this.radius = radius;
     this.type = type;
     this.shape = shape;
@@ -30,5 +33,15 @@ export class GameObject {
     this.isCollidable = isCollidable;
     this.isDestructive = isDestructive;
     this.isPlayer = isPlayer;
+  }
+
+  setImage(image, context, textures) {
+    this.image = image;
+    this.context = context;
+    this.textures = textures;
+  }
+
+  setAnimation(animations) {
+    this.animations = animations;
   }
 }
