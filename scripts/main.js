@@ -223,8 +223,8 @@ function draw(obj) {
         obj.view.sy * obj.params.height,
         obj.params.width,
         obj.params.height,
-        obj.position.x,
-        obj.position.y,
+        obj.x,
+        obj.y,
         obj.params.width,
         obj.params.height
       )
@@ -232,18 +232,13 @@ function draw(obj) {
     ? obj.textures.forEach((tex, i) =>
         tex.frame(obj.images[i].image, obj.images[i].context, 0, 0)
       )
-    : ctx.fillRect(
-        obj.position.x,
-        obj.position.y,
-        obj.params.width,
-        obj.params.height
-      );
+    : ctx.fillRect(obj.x, obj.y, obj.params.width, obj.params.height);
   ctx.closePath();
   if (obj.tag === "player") {
     ctx.beginPath();
     ctx.fillStyle = "#FFFFFF";
     ctx.font = "30px serif";
-    ctx.fillText(score, obj.position.x + 30, obj.position.y + 60);
+    ctx.fillText(score, obj.x + 30, obj.y + 60);
     ctx.closePath();
   }
 }
@@ -266,10 +261,10 @@ function collisionCheck(objs, shoots) {
   for (let i = 0; i < objs.length; i++) {
     for (let j = 0; j < shoots.length; j++) {
       if (
-        // objs[i].position.x + objs[i].params.width >= shoots[j].position.x &&
-        // objs[i].position.y + objs[i].params.height >= shoots[j].position.y &&
-        // objs[i].position.x <= shoots[j].position.x + shoots[j].params.width &&
-        // objs[i].position.y <= shoots[j].position.y + shoots[j].params.height
+        // objs[i].x + objs[i].params.width >= shoots[j].x &&
+        // objs[i].y + objs[i].params.height >= shoots[j].y &&
+        // objs[i].x <= shoots[j].x + shoots[j].params.width &&
+        // objs[i].y <= shoots[j].y + shoots[j].params.height
         objs[i].collider.checkCollision(shoots[j].collider.bodies)
       ) {
         if (
@@ -298,10 +293,10 @@ function collisionCheck(objs, shoots) {
 
 function isOutOfScreen(obj) {
   if (
-    obj.position.x >= screen.width ||
-    obj.position.x + obj.params.width <= 0 ||
-    obj.position.y >= screen.height ||
-    obj.position.y + obj.params.height <= 0
+    obj.x >= screen.width ||
+    obj.x + obj.params.width <= 0 ||
+    obj.y >= screen.height ||
+    obj.y + obj.params.height <= 0
   )
     return true;
   return false;
@@ -311,19 +306,19 @@ function move(obj) {
   if (obj.movement.status === "moving") {
     switch (obj.movement.direction) {
       case "up":
-        obj.position.y -= obj.movement.speed;
+        obj.y -= obj.movement.speed;
         obj.collider.move(0, -obj.movement.speed);
         break;
       case "left":
-        obj.position.x -= obj.movement.speed;
+        obj.x -= obj.movement.speed;
         obj.collider.move(-obj.movement.speed);
         break;
       case "down":
-        obj.position.y += obj.movement.speed;
+        obj.y += obj.movement.speed;
         obj.collider.move(0, obj.movement.speed);
         break;
       case "right":
-        obj.position.x += obj.movement.speed;
+        obj.x += obj.movement.speed;
         obj.collider.move(obj.movement.speed);
         break;
       default:
@@ -354,8 +349,8 @@ function shoot(obj, dir) {
     new GameObject({
       tag: obj.tag + "_shoot",
       position: {
-        x: obj.position.x + bulletPositionX(obj.params, dir),
-        y: obj.position.y + bulletPositionY(obj.params, dir),
+        x: obj.x + bulletPositionX(obj.params, dir),
+        y: obj.y + bulletPositionY(obj.params, dir),
       },
       params: {
         color: "#FF0000",
@@ -452,15 +447,15 @@ function enemyAI(enemies) {
 
 // function playerSeen(enemy) {
 //   if(
-//     player.position.x + player.params.width >= enemy.position.x - enemy.viewRad &&
-//     player.position.x <= enemy.position.x + enemy.viewRad + enemy.params.width &&
-//     player.position.y + player.params.height >= enemy.position.y - enemy.viewRad &&
-//     player.position.y <= enemy.position.y + enemy.viewRad + enemy.params.height
+//     player.x + player.params.width >= enemy.x - enemy.viewRad &&
+//     player.x <= enemy.x + enemy.viewRad + enemy.params.width &&
+//     player.y + player.params.height >= enemy.y - enemy.viewRad &&
+//     player.y <= enemy.y + enemy.viewRad + enemy.params.height
 //   ) {
-//     if (enemy.movement.direction === 'up' && player.position.y < enemy.position.y + 10) return true;
-//     if (enemy.movement.direction === 'down' && player.position.y + player.params.height > enemy.position.y + enemy.params.height - 10) return true;
-//     if (enemy.movement.direction === 'left' && player.position.x < enemy.position.x + 10) return true;
-//     if (enemy.movement.direction === 'right' && player.position.x + player.params.width > enemy.position.x + enemy.params.width - 10) return true;
+//     if (enemy.movement.direction === 'up' && player.y < enemy.y + 10) return true;
+//     if (enemy.movement.direction === 'down' && player.y + player.params.height > enemy.y + enemy.params.height - 10) return true;
+//     if (enemy.movement.direction === 'left' && player.x < enemy.x + 10) return true;
+//     if (enemy.movement.direction === 'right' && player.x + player.params.width > enemy.x + enemy.params.width - 10) return true;
 //     return false;
 //   }
 // }
@@ -517,8 +512,8 @@ function explode(obj) {
     new GameObject({
       tag: "explosion",
       position: {
-        x: obj.position.x,
-        y: obj.position.y,
+        x: obj.x,
+        y: obj.y,
       },
       params: {
         color: "#000000",
@@ -608,15 +603,15 @@ class GameObject {
       shape === 0
         ? new CollisionBody({
             type: 0,
-            x1: this.position.x,
-            y1: this.position.y,
-            x2: this.position.x + this.params.width,
-            y2: this.position.y + this.params.height,
+            x1: this.x,
+            y1: this.y,
+            x2: this.x + this.params.width,
+            y2: this.y + this.params.height,
           })
         : new CollisionBody({
             type: 1,
-            x: this.position.x,
-            y: this.position.y,
+            x: this.x,
+            y: this.y,
             r: this.params.width,
           });
   }
@@ -653,22 +648,19 @@ document.addEventListener("click", (e) => {
   if (gameStarted) {
     let dir = "";
     if (
-      e.clientX > player.position.x &&
-      Math.abs(e.clientY - player.position.y) <
-        Math.abs(e.clientX - player.position.x)
+      e.clientX > player.x &&
+      Math.abs(e.clientY - player.y) < Math.abs(e.clientX - player.x)
     ) {
       player.view.sy = 1;
       dir = "right";
     } else if (
-      Math.abs(e.clientY - player.position.y) <
-      Math.abs(e.clientX - player.position.x)
+      Math.abs(e.clientY - player.y) < Math.abs(e.clientX - player.x)
     ) {
       player.view.sy = 3;
       dir = "left";
     } else if (
-      e.clientY > player.position.y &&
-      Math.abs(e.clientX - player.position.x) <
-        Math.abs(e.clientY - player.position.y)
+      e.clientY > player.y &&
+      Math.abs(e.clientX - player.x) < Math.abs(e.clientY - player.y)
     ) {
       player.view.sy = 2;
       dir = "down";
