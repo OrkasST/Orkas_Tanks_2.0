@@ -1,5 +1,6 @@
 import { GameObject } from "../objects/GameObject.js";
 import { CollisionBody } from "../physics/CollisionBody.js";
+import { Animation } from "./Animation.js";
 
 export class ObjectCreator {
   create(
@@ -41,7 +42,7 @@ export class ObjectCreator {
           framelist: el,
         })
     );
-    object.setImage(image, context, textures);
+    object.setImage(images, textures);
     if (object.isCollidable)
       object.collider = new CollisionBody(
         colisionBodyShape || {

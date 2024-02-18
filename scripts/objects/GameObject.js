@@ -2,7 +2,7 @@ import { CollisionBody } from "../physics/CollisionBody.js";
 
 export class GameObject {
   constructor({
-    type = "block", //"entity" | "projectile"
+    tag = "block", //"entity" | "projectile"
 
     x = 0,
     y = 0,
@@ -13,11 +13,22 @@ export class GameObject {
     radius = 0,
 
     isStatic = true,
-    isCollidable = true,
+    isCollidable = false,
     isPlayer = false,
     isDestructive = false,
 
     shape = "rectangle", // "circle" , {type:0/1, x...}
+
+    //temporary
+    movement = {
+      direction: "none",
+      prevDirection: "none",
+      speed: 5,
+      status: "stop",
+      steps: 0,
+    },
+    time = 0,
+    lifeTime = "infinite",
   }) {
     this.x = x;
     this.y = y;
@@ -25,7 +36,7 @@ export class GameObject {
     this.height = height;
     this.rotation = rotation;
     this.radius = radius;
-    this.type = type;
+    this.tag = tag;
     this.shape = shape;
 
     this.isSpheric = isSpheric;
@@ -33,6 +44,11 @@ export class GameObject {
     this.isCollidable = isCollidable;
     this.isDestructive = isDestructive;
     this.isPlayer = isPlayer;
+
+    //temp
+    this.movement = movement;
+    this.time = time;
+    this.lifeTime = lifeTime;
   }
 
   setImage(images, textures) {

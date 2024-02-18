@@ -1,5 +1,5 @@
 import { CollisionBody } from "./physics/CollisionBody.js";
-import { Animation } from "./utilities/Animation.js";
+import { ObjectCreator } from "./utilities/ObjectCreator.js";
 
 //UI elem-s
 const start = document.getElementById("start");
@@ -32,10 +32,11 @@ let imagesToLoad = null;
 let images = null;
 let id = null;
 
-let anim = null;
-let image = null;
-let context = null;
-let rotation = 0;
+// let anim = null;
+// let image = null;
+// let context = null;
+// let rotation = 0;
+let creator = null;
 
 starter.addEventListener("click", (e) => {
   ``;
@@ -66,15 +67,15 @@ function init() {
   screen.height = window.innerHeight;
   ctx = screen.getContext("2d");
   gameData = [[], [], []];
-  player = new GameObject({
-    tag: "player",
-    params: {
-      color: "#000000",
-      width: 64,
-      height: 64,
-    },
-  });
-  gameData[0].push(player);
+  creator = new ObjectCreator();
+  // player = new GameObject({
+  //   tag: "player",
+  //   params: {
+  //     color: "#000000",
+  //     width: 64,
+  //     height: 64,
+  //   },
+  // });
   spawnTime = 5000;
   prevSetTime = 0;
   gameStarted = true;
@@ -92,7 +93,40 @@ function init() {
   loadImages()
     .then((names) => {
       // console.log(player);
-      player.view.image = images["player_tank"];
+      // player.view.image = images["player_tank"];
+
+      player = creator.create(
+        {
+          tag: "player",
+          x: 0,
+          y: 0,
+          width: 64,
+          height: 64,
+          isCollidable: true,
+        },
+        [images["player_tank"]],
+        0,
+        64,
+        64,
+        1,
+        [
+          {
+            framelist: "",
+            frameListHeight: 64,
+            frameListWidth: 64,
+            frameWidth: 64,
+            frameHeight: 64,
+            duration: 0,
+            frameX: 0,
+            frameY: 0,
+            startFrame: 0,
+            isRotating: false,
+            isInfinit: true,
+          },
+        ]
+      );
+      gameData[0].push(player);
+      console.log(player);
       Game(gameData, 0);
     })
     .catch((e) => console.log(e));
@@ -159,7 +193,7 @@ function render(data) {
   data[2].forEach((obj) => draw(obj));
   data[0].forEach((obj) => draw(obj));
 
-  anim.frame(image, context, rotation, 0);
+  // anim.frame(image, context, rotation, 0);
   rotation += 0.05;
 }
 
@@ -193,6 +227,10 @@ function draw(obj) {
         obj.position.y,
         obj.params.width,
         obj.params.height
+      )
+    : obj.images
+    ? obj.textures.forEach((tex, i) =>
+        tex.frame(obj.images[i].image, obj.images[i].context, 0, 0)
       )
     : ctx.fillRect(
         obj.position.x,
