@@ -1,4 +1,5 @@
 import { CollisionBody } from "./physics/CollisionBody.js";
+import { Animation } from "./utilities/Animation.js";
 
 //UI elem-s
 const start = document.getElementById("start");
@@ -30,6 +31,11 @@ let alive = null;
 let imagesToLoad = null;
 let images = null;
 let id = null;
+
+let anim = null;
+let image = null;
+let context = null;
+let rotation = 0;
 
 starter.addEventListener("click", (e) => {
   ``;
@@ -152,6 +158,9 @@ function render(data) {
   data[1].forEach((obj) => draw(obj));
   data[2].forEach((obj) => draw(obj));
   data[0].forEach((obj) => draw(obj));
+
+  anim.frame(image, context, rotation, 0);
+  rotation += 0.05;
 }
 
 function drawBG() {

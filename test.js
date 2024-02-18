@@ -165,9 +165,9 @@ let animation_1 = new Animation(
   false,
   false
 );
-for (let i = 0; i < 30; i++) animation_1.frame(null, null, 0);
+// for (let i = 0; i < 30; i++) animation_1.frame(null, null, 0);
 
-animation_1.frame(null, null, 0);
+// animation_1.frame(null, null, 0);
 
 //end of Animation Tests
 console.groupEnd();

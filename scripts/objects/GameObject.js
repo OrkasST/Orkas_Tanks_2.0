@@ -35,9 +35,8 @@ export class GameObject {
     this.isPlayer = isPlayer;
   }
 
-  setImage(image, context, textures) {
-    this.image = image;
-    this.context = context;
+  setImage(images, textures) {
+    this.images = images;
     this.textures = textures;
   }
 
