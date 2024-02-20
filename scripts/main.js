@@ -53,7 +53,7 @@ starter.addEventListener("click", (e) => {
       start.classList.add("_hidden");
       if (!gameStarted) init();
     }, 1000);
-    // theme.play();/////////////////////////////////////////////////////////////////////////////////
+    theme.play();
     musicInterval = setInterval(() => {
       theme.currentTime = 0;
     }, 232000);
