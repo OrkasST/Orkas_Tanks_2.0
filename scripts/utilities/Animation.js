@@ -24,14 +24,18 @@ export class Animation {
     this.isInfinit = isInfinit;
     this.isRotating = isRotating;
     this.currentFrame = 0 + startFrame;
+    this.line = null;
+    this.column = null;
   }
 
   frame(image, context, rotation, number) {
     // if (this.duration < this.currentFrame) return;
-    let sx = (number || this.currentFrame) * this.frameWidth;
-    let line = Math.floor(
-      ((number || this.currentFrame) * this.frameWidth) / this.frameListWidth
-    );
+    let sx = (this.column || number || this.currentFrame) * this.frameWidth;
+    let line =
+      this.line ||
+      Math.floor(
+        ((number || this.currentFrame) * this.frameWidth) / this.frameListWidth
+      );
     if (sx >= this.frameListWidth) sx -= this.frameListWidth * line;
     let sy = line * this.frameHeight;
     // console.log("~~~~~~~~~~~~~");
@@ -64,5 +68,12 @@ export class Animation {
     if (!number && this.duration > this.currentFrame) this.currentFrame++;
     if (this.duration <= this.currentFrame && this.isInfinit)
       this.currentFrame = 0;
+  }
+
+  setLine(line) {
+    this.line = line;
+  }
+  setColumn(column) {
+    this.column = column;
   }
 }

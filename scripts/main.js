@@ -1,5 +1,5 @@
 import { CollisionBody } from "./physics/CollisionBody.js";
-import { Animation } from "./utilities/Animation.js";
+import { ObjectCreator } from "./utilities/ObjectCreator.js";
 
 //UI elem-s
 const start = document.getElementById("start");
@@ -32,10 +32,11 @@ let imagesToLoad = null;
 let images = null;
 let id = null;
 
-let anim = null;
-let image = null;
-let context = null;
-let rotation = 0;
+// let anim = null;
+// let image = null;
+// let context = null;
+// let rotation = 0;
+let creator = null;
 
 starter.addEventListener("click", (e) => {
   ``;
@@ -52,7 +53,7 @@ starter.addEventListener("click", (e) => {
       start.classList.add("_hidden");
       if (!gameStarted) init();
     }, 1000);
-    theme.play();
+    // theme.play();/////////////////////////////////////////////////////////////////////////////////
     musicInterval = setInterval(() => {
       theme.currentTime = 0;
     }, 232000);
@@ -66,15 +67,15 @@ function init() {
   screen.height = window.innerHeight;
   ctx = screen.getContext("2d");
   gameData = [[], [], []];
-  player = new GameObject({
-    tag: "player",
-    params: {
-      color: "#000000",
-      width: 64,
-      height: 64,
-    },
-  });
-  gameData[0].push(player);
+  creator = new ObjectCreator();
+  // player = new GameObject({
+  //   tag: "player",
+  //   params: {
+  //     color: "#000000",
+  //     width: 64,
+  //     height: 64,
+  //   },
+  // });
   spawnTime = 5000;
   prevSetTime = 0;
   gameStarted = true;
@@ -92,7 +93,40 @@ function init() {
   loadImages()
     .then((names) => {
       // console.log(player);
-      player.view.image = images["player_tank"];
+      // player.view.image = images["player_tank"];
+
+      player = creator.create(
+        {
+          tag: "player",
+          x: 0,
+          y: 0,
+          width: 64,
+          height: 64,
+          isCollidable: true,
+        },
+        [images["player_tank"]],
+        0,
+        64,
+        64,
+        1,
+        [
+          {
+            framelist: "",
+            frameListHeight: 256,
+            frameListWidth: 256,
+            frameWidth: 64,
+            frameHeight: 64,
+            duration: 0,
+            frameX: 0,
+            frameY: 0,
+            startFrame: 0,
+            isRotating: false,
+            isInfinit: false,
+          },
+        ]
+      );
+      gameData[0].push(player);
+      console.log(player);
       Game(gameData, 0);
     })
     .catch((e) => console.log(e));
@@ -140,7 +174,9 @@ function update(data, time) {
   }
   if (data[2].length > 0) {
     for (let i = 0; i < data[2].length; i++) {
-      if (!animateExplosion(data[2][i])) {
+      if (
+        data[2][i].textures[0].duration <= data[2][i].textures[0].currentFrame
+      ) {
         data[2].splice(i, 1);
         i--;
         if (data[2].length === 0) break;
@@ -158,9 +194,6 @@ function render(data) {
   data[1].forEach((obj) => draw(obj));
   data[2].forEach((obj) => draw(obj));
   data[0].forEach((obj) => draw(obj));
-
-  anim.frame(image, context, rotation, 0);
-  rotation += 0.05;
 }
 
 function drawBG() {
@@ -181,31 +214,21 @@ function drawBG() {
 
 function draw(obj) {
   ctx.beginPath();
-  ctx.fillStyle = obj.params.color;
-  obj.view.image
-    ? ctx.drawImage(
-        obj.view.image,
-        obj.view.sx * obj.params.width,
-        obj.view.sy * obj.params.height,
-        obj.params.width,
-        obj.params.height,
-        obj.position.x,
-        obj.position.y,
-        obj.params.width,
-        obj.params.height
-      )
-    : ctx.fillRect(
-        obj.position.x,
-        obj.position.y,
-        obj.params.width,
-        obj.params.height
-      );
+  ctx.fillStyle = obj.color;
+  if (obj.images.length > 0) {
+    obj.textures.forEach((tex, i) =>
+      tex.frame(obj.images[i].image, obj.images[i].context, 0, 0)
+    );
+    obj.images.forEach((image) =>
+      ctx.drawImage(image.image, obj.x, obj.y, obj.width, obj.height)
+    );
+  } else ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
   ctx.closePath();
   if (obj.tag === "player") {
     ctx.beginPath();
     ctx.fillStyle = "#FFFFFF";
     ctx.font = "30px serif";
-    ctx.fillText(score, obj.position.x + 30, obj.position.y + 60);
+    ctx.fillText(score, obj.x + 30, obj.y + 60);
     ctx.closePath();
   }
 }
@@ -228,10 +251,10 @@ function collisionCheck(objs, shoots) {
   for (let i = 0; i < objs.length; i++) {
     for (let j = 0; j < shoots.length; j++) {
       if (
-        // objs[i].position.x + objs[i].params.width >= shoots[j].position.x &&
-        // objs[i].position.y + objs[i].params.height >= shoots[j].position.y &&
-        // objs[i].position.x <= shoots[j].position.x + shoots[j].params.width &&
-        // objs[i].position.y <= shoots[j].position.y + shoots[j].params.height
+        // objs[i].x + objs[i].width >= shoots[j].x &&
+        // objs[i].y + objs[i].height >= shoots[j].y &&
+        // objs[i].x <= shoots[j].x + shoots[j].width &&
+        // objs[i].y <= shoots[j].y + shoots[j].height
         objs[i].collider.checkCollision(shoots[j].collider.bodies)
       ) {
         if (
@@ -260,10 +283,10 @@ function collisionCheck(objs, shoots) {
 
 function isOutOfScreen(obj) {
   if (
-    obj.position.x >= screen.width ||
-    obj.position.x + obj.params.width <= 0 ||
-    obj.position.y >= screen.height ||
-    obj.position.y + obj.params.height <= 0
+    obj.x >= screen.width ||
+    obj.x + obj.width <= 0 ||
+    obj.y >= screen.height ||
+    obj.y + obj.height <= 0
   )
     return true;
   return false;
@@ -273,19 +296,19 @@ function move(obj) {
   if (obj.movement.status === "moving") {
     switch (obj.movement.direction) {
       case "up":
-        obj.position.y -= obj.movement.speed;
+        obj.y -= obj.movement.speed;
         obj.collider.move(0, -obj.movement.speed);
         break;
       case "left":
-        obj.position.x -= obj.movement.speed;
+        obj.x -= obj.movement.speed;
         obj.collider.move(-obj.movement.speed);
         break;
       case "down":
-        obj.position.y += obj.movement.speed;
+        obj.y += obj.movement.speed;
         obj.collider.move(0, obj.movement.speed);
         break;
       case "right":
-        obj.position.x += obj.movement.speed;
+        obj.x += obj.movement.speed;
         obj.collider.move(obj.movement.speed);
         break;
       default:
@@ -313,11 +336,12 @@ function shoot(obj, dir) {
     }, 100);
   }
   gameData[1].push(
+    /*
     new GameObject({
       tag: obj.tag + "_shoot",
       position: {
-        x: obj.position.x + bulletPositionX(obj.params, dir),
-        y: obj.position.y + bulletPositionY(obj.params, dir),
+        x: obj.x + bulletPositionX(obj.params, dir),
+        y: obj.y + bulletPositionY(obj.params, dir),
       },
       params: {
         color: "#FF0000",
@@ -338,37 +362,77 @@ function shoot(obj, dir) {
       lifeTime: 3000,
       shape: 1,
     })
+    */
+    creator.create(
+      {
+        lifeTime: 3000,
+        shape: 1,
+        movement: {
+          direction: dir || obj.movement.direction,
+          prevDirection: "none",
+          speed: 10,
+          status: "moving",
+        },
+        width: 10,
+        height: 10,
+        x: obj.x + bulletPositionX(obj.width, dir),
+        y: obj.y + bulletPositionY(obj.height, dir),
+        tag: obj.tag + "_shoot",
+        isCollidable: true,
+      },
+      [images["shot"]],
+      0,
+      10,
+      10,
+      1,
+      [
+        {
+          framelist: "",
+          frameListHeight: 10,
+          frameListWidth: 10,
+          frameWidth: 10,
+          frameHeight: 10,
+          duration: 0,
+          frameX: 0,
+          frameY: 0,
+          startFrame: 0,
+          isRotating: false,
+          isInfinit: false,
+        },
+      ]
+    )
   );
 }
 
-function bulletPositionX(params, dir) {
+function bulletPositionX(width, dir) {
   switch (dir) {
     case "up":
-      return params.width / 2 - 5;
+      return width / 2 - 5;
     case "left":
       return 0;
     case "down":
-      return params.width / 2 - 5;
+      return width / 2 - 5;
     case "right":
-      return params.width - 10;
+      return width - 10;
   }
 }
 
-function bulletPositionY(params, dir) {
+function bulletPositionY(height, dir) {
   switch (dir) {
     case "up":
       return 0;
     case "left":
-      return params.height / 2 - 5;
+      return height / 2 - 5;
     case "down":
-      return params.height - 10;
+      return height - 10;
     case "right":
-      return params.height / 2 - 5;
+      return height / 2 - 5;
   }
 }
 
 function spawnEnemy(time) {
   gameData[0].push(
+    /*
     new GameObject({
       tag: "enemy",
       position: {
@@ -393,6 +457,45 @@ function spawnEnemy(time) {
         sy: 0,
       },
     })
+    */
+    creator.create(
+      {
+        tag: "enemy",
+        x: Math.floor(Math.random() * screen.width),
+        y: Math.floor(Math.random() * screen.height),
+        color: "#FF0055",
+        width: 64,
+        height: 64,
+        movement: {
+          direction: "none",
+          prevDirection: "none",
+          speed: 5,
+          status: "moving",
+          steps: 0,
+        },
+        isCollidable: true,
+      },
+      [images["enemy_tank"]],
+      0,
+      64,
+      64,
+      1,
+      [
+        {
+          framelist: "",
+          frameListHeight: 256,
+          frameListWidth: 256,
+          frameWidth: 64,
+          frameHeight: 64,
+          duration: 0,
+          frameX: 0,
+          frameY: 0,
+          startFrame: 0,
+          isRotating: false,
+          isInfinit: false,
+        },
+      ]
+    )
   );
   prevSetTime = time;
 }
@@ -414,15 +517,15 @@ function enemyAI(enemies) {
 
 // function playerSeen(enemy) {
 //   if(
-//     player.position.x + player.params.width >= enemy.position.x - enemy.viewRad &&
-//     player.position.x <= enemy.position.x + enemy.viewRad + enemy.params.width &&
-//     player.position.y + player.params.height >= enemy.position.y - enemy.viewRad &&
-//     player.position.y <= enemy.position.y + enemy.viewRad + enemy.params.height
+//     player.x + player.width >= enemy.x - enemy.viewRad &&
+//     player.x <= enemy.x + enemy.viewRad + enemy.width &&
+//     player.y + player.height >= enemy.y - enemy.viewRad &&
+//     player.y <= enemy.y + enemy.viewRad + enemy.height
 //   ) {
-//     if (enemy.movement.direction === 'up' && player.position.y < enemy.position.y + 10) return true;
-//     if (enemy.movement.direction === 'down' && player.position.y + player.params.height > enemy.position.y + enemy.params.height - 10) return true;
-//     if (enemy.movement.direction === 'left' && player.position.x < enemy.position.x + 10) return true;
-//     if (enemy.movement.direction === 'right' && player.position.x + player.params.width > enemy.position.x + enemy.params.width - 10) return true;
+//     if (enemy.movement.direction === 'up' && player.y < enemy.y + 10) return true;
+//     if (enemy.movement.direction === 'down' && player.y + player.height > enemy.y + enemy.height - 10) return true;
+//     if (enemy.movement.direction === 'left' && player.x < enemy.x + 10) return true;
+//     if (enemy.movement.direction === 'right' && player.x + player.width > enemy.x + enemy.width - 10) return true;
 //     return false;
 //   }
 // }
@@ -431,20 +534,20 @@ function chooseDirection(v) {
   let x = Math.floor(Math.random() * 5);
   switch (x) {
     case 0:
-      v.sx = 0;
-      v.sy = 0;
+      // v.sx = 0;
+      // v.sy = 0;
       return "up";
     case 1:
-      v.sx = 3;
-      v.sy = 3;
+      // v.sx = 3;
+      // v.sy = 3;
       return "left";
     case 2:
-      v.sx = 2;
-      v.sy = 2;
+      // v.sx = 2;
+      // v.sy = 2;
       return "down";
     case 3:
-      v.sx = 1;
-      v.sy = 1;
+      // v.sx = 1;
+      // v.sy = 1;
       return "right";
     case 4:
       return "none";
@@ -476,11 +579,12 @@ function load(name, src) {
 
 function explode(obj) {
   gameData[2].push(
+    /*
     new GameObject({
       tag: "explosion",
       position: {
-        x: obj.position.x,
-        y: obj.position.y,
+        x: obj.x,
+        y: obj.y,
       },
       params: {
         color: "#000000",
@@ -493,6 +597,43 @@ function explode(obj) {
         sy: 0,
       },
     })
+    */
+    creator.create(
+      {
+        tag: "explosion",
+        x: obj.x,
+        y: obj.y,
+        color: "#000000",
+        width: 64,
+        height: 64,
+        movement: {
+          direction: "none",
+          prevDirection: "none",
+          speed: 5,
+          status: "stop",
+          steps: 0,
+        },
+      },
+      [images["explosion"]],
+      0,
+      64,
+      64,
+      1,
+      [
+        {
+          frameListHeight: 64,
+          frameListWidth: 384,
+          frameWidth: 64,
+          frameHeight: 64,
+          duration: 6,
+          frameX: 0,
+          frameY: 0,
+          startFrame: 0,
+          isRotating: false,
+          isInfinit: false,
+        },
+      ]
+    )
   );
 }
 
@@ -570,16 +711,16 @@ class GameObject {
       shape === 0
         ? new CollisionBody({
             type: 0,
-            x1: this.position.x,
-            y1: this.position.y,
-            x2: this.position.x + this.params.width,
-            y2: this.position.y + this.params.height,
+            x1: this.x,
+            y1: this.y,
+            x2: this.x + this.width,
+            y2: this.y + this.height,
           })
         : new CollisionBody({
             type: 1,
-            x: this.position.x,
-            y: this.position.y,
-            r: this.params.width,
+            x: this.x,
+            y: this.y,
+            r: this.width,
           });
   }
 }
@@ -591,22 +732,26 @@ document.addEventListener("keydown", (e) => {
     case "KeyW":
       player.movement.direction = "up";
       player.movement.status = "moving";
-      player.view.sx = 0;
+      // player.view.sx = 0;
+      player.textures[0].setColumn(0);
       break;
     case "KeyD":
       player.movement.direction = "right";
       player.movement.status = "moving";
-      player.view.sx = 1;
+      // player.view.sx = 1;
+      player.textures[0].setColumn(1);
       break;
     case "KeyS":
       player.movement.direction = "down";
       player.movement.status = "moving";
-      player.view.sx = 2;
+      // player.view.sx = 2;
+      player.textures[0].setColumn(2);
       break;
     case "KeyA":
       player.movement.direction = "left";
       player.movement.status = "moving";
-      player.view.sx = 3;
+      // player.view.sx = 3;
+      player.textures[0].setColumn(3);
       break;
   }
 });
@@ -615,27 +760,28 @@ document.addEventListener("click", (e) => {
   if (gameStarted) {
     let dir = "";
     if (
-      e.clientX > player.position.x &&
-      Math.abs(e.clientY - player.position.y) <
-        Math.abs(e.clientX - player.position.x)
+      e.clientX > player.x &&
+      Math.abs(e.clientY - player.y) < Math.abs(e.clientX - player.x)
     ) {
-      player.view.sy = 1;
+      // player.view.sy = 1;
+      player.textures[0].setLine(1);
       dir = "right";
     } else if (
-      Math.abs(e.clientY - player.position.y) <
-      Math.abs(e.clientX - player.position.x)
+      Math.abs(e.clientY - player.y) < Math.abs(e.clientX - player.x)
     ) {
-      player.view.sy = 3;
+      // player.view.sy = 3;
+      player.textures[0].setLine(3);
       dir = "left";
     } else if (
-      e.clientY > player.position.y &&
-      Math.abs(e.clientX - player.position.x) <
-        Math.abs(e.clientY - player.position.y)
+      e.clientY > player.y &&
+      Math.abs(e.clientX - player.x) < Math.abs(e.clientY - player.y)
     ) {
-      player.view.sy = 2;
+      // player.view.sy = 2;
+      player.textures[0].setLine(2);
       dir = "down";
     } else {
-      player.view.sy = 0;
+      // player.view.sy = 0;
+      player.textures[0].setLine(0);
       dir = "up";
     }
     shoot(player, dir);
