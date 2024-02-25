@@ -6,6 +6,10 @@
   font-family: 'Orbitron', sans-serif;;
 }
 
+canvas {
+  border: solid 1px #000;
+}
+
 .wrapper{
   position: relative;
   padding: 0;

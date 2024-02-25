@@ -83,7 +83,9 @@ function init() {
   alive = true;
 
   imagesToLoad = {
-    player_tank: "./media/images/Player_Tank_Anim.png",
+    // player_tank: "./media/images/Player_Tank_Anim.png",
+    player_tank_tower: "./media/images/Tower_01.png",
+    player_tank_hull: "./media/images/Hull.png",
     enemy_tank: "./media/images/Enemy_Tank_Anim.png",
     shot: "./media/images/Shot.png",
     explosion: "./media/images/Explosion.png",
@@ -100,27 +102,42 @@ function init() {
           tag: "player",
           x: 0,
           y: 0,
-          width: 64,
-          height: 64,
+          width: 128,
+          height: 128,
           isCollidable: true,
         },
-        [images["player_tank"]],
+        [images["player_tank_hull"], images["player_tank_tower"]],
         0,
-        64,
-        64,
-        1,
+        [512, 512, 588, 588],
+        2,
         [
           {
             framelist: "",
-            frameListHeight: 256,
-            frameListWidth: 256,
-            frameWidth: 64,
-            frameHeight: 64,
+            frameListHeight: 512,
+            frameListWidth: 2048,
+            frameWidth: 512,
+            frameHeight: 512,
             duration: 0,
             frameX: 0,
             frameY: 0,
+            offsetX: 0,
+            offsetY: 0,
             startFrame: 0,
             isRotating: false,
+            isInfinit: false,
+            log: true,
+          },
+          {
+            framelist: "",
+            frameListHeight: 512,
+            frameListWidth: 512,
+            frameWidth: 512,
+            frameHeight: 512,
+            duration: 0,
+            frameX: -256,
+            frameY: -256,
+            startFrame: 0,
+            isRotating: true,
             isInfinit: false,
           },
         ]
@@ -152,6 +169,7 @@ function update(data, time) {
   if (data[0].length > 0) {
     for (let i = 0; i < data[0].length; i++) {
       if (isOutOfScreen(data[0][i]) && data[0][i].tag === "enemy") {
+        creator.destroy(data[0][i]);
         data[0].splice(i, 1);
         i--;
       }
@@ -165,6 +183,7 @@ function update(data, time) {
         time - data[1][i].time > data[1][i].lifeTime ||
         isOutOfScreen(data[1][i])
       ) {
+        creator.destroy(data[1][i]);
         data[1].splice(i, 1);
         i--;
         if (data[1].length === 0) break;
@@ -177,6 +196,7 @@ function update(data, time) {
       if (
         data[2][i].textures[0].duration <= data[2][i].textures[0].currentFrame
       ) {
+        creator.destroy(data[2][i]);
         data[2].splice(i, 1);
         i--;
         if (data[2].length === 0) break;
@@ -382,8 +402,7 @@ function shoot(obj, dir) {
       },
       [images["shot"]],
       0,
-      10,
-      10,
+      [10, 10],
       1,
       [
         {
@@ -477,8 +496,7 @@ function spawnEnemy(time) {
       },
       [images["enemy_tank"]],
       0,
-      64,
-      64,
+      [64, 64],
       1,
       [
         {
@@ -616,8 +634,7 @@ function explode(obj) {
       },
       [images["explosion"]],
       0,
-      64,
-      64,
+      [64, 64],
       1,
       [
         {
@@ -733,25 +750,25 @@ document.addEventListener("keydown", (e) => {
       player.movement.direction = "up";
       player.movement.status = "moving";
       // player.view.sx = 0;
-      player.textures[0].setColumn(0);
+      player.textures[0].setColumn(1);
       break;
     case "KeyD":
       player.movement.direction = "right";
       player.movement.status = "moving";
       // player.view.sx = 1;
-      player.textures[0].setColumn(1);
+      player.textures[0].setColumn(0);
       break;
     case "KeyS":
       player.movement.direction = "down";
       player.movement.status = "moving";
       // player.view.sx = 2;
-      player.textures[0].setColumn(2);
+      player.textures[0].setColumn(3);
       break;
     case "KeyA":
       player.movement.direction = "left";
       player.movement.status = "moving";
       // player.view.sx = 3;
-      player.textures[0].setColumn(3);
+      player.textures[0].setColumn(2);
       break;
   }
 });
@@ -764,24 +781,24 @@ document.addEventListener("click", (e) => {
       Math.abs(e.clientY - player.y) < Math.abs(e.clientX - player.x)
     ) {
       // player.view.sy = 1;
-      player.textures[0].setLine(1);
+      // player.textures[0].setLine(1);
       dir = "right";
     } else if (
       Math.abs(e.clientY - player.y) < Math.abs(e.clientX - player.x)
     ) {
       // player.view.sy = 3;
-      player.textures[0].setLine(3);
+      // player.textures[0].setLine(3);
       dir = "left";
     } else if (
       e.clientY > player.y &&
       Math.abs(e.clientX - player.x) < Math.abs(e.clientY - player.y)
     ) {
       // player.view.sy = 2;
-      player.textures[0].setLine(2);
+      // player.textures[0].setLine(2);
       dir = "down";
     } else {
       // player.view.sy = 0;
-      player.textures[0].setLine(0);
+      // player.textures[0].setLine(0);
       dir = "up";
     }
     shoot(player, dir);

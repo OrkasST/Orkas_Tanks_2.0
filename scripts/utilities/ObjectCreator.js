@@ -7,8 +7,7 @@ export class ObjectCreator {
     objectData = {},
     textures = [],
     colisionBodyShape = 0,
-    imageWidth,
-    imageHeight,
+    imagesSize = [],
     imagesCount,
     animationData = [
       {
@@ -31,8 +30,9 @@ export class ObjectCreator {
     for (let i = 0; i < imagesCount; i++) {
       images[i] = {};
       images[i].image = document.createElement("canvas");
-      images[i].image.width = imageWidth || object.data.width;
-      images[i].image.height = imageHeight || object.data.height;
+      // document.body.appendChild(images[i].image);
+      images[i].image.width = imagesSize[i * 2] || object.data.width;
+      images[i].image.height = imagesSize[i * 2 + 1] || object.data.height;
       images[i].context = images[i].image.getContext("2d");
     }
     textures = textures.map(
@@ -54,5 +54,9 @@ export class ObjectCreator {
         }
       );
     return object;
+  }
+  destroy(object) {
+    for (let i = 0; i < object.images.length; i++)
+      object.images[i].image.remove();
   }
 }
