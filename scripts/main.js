@@ -8,6 +8,7 @@ const title = document.querySelector(".head");
 const menu = document.querySelector("#menu");
 const controlButtons = document.querySelector(".mobile_controls");
 let scale = 1;
+
 // console.log(controlButtons.children);
 //sounds
 const theme = document.getElementById("theme");
@@ -20,6 +21,7 @@ let gameStarted = false;
 let paused = false;
 
 //functional
+let screen = document.getElementById("screen");
 let ctx = null;
 let musicInterval = null;
 let gameData = null;
@@ -51,6 +53,7 @@ starter.addEventListener("click", (e) => {
     setTimeout(() => {
       starter.classList.add("_hidden");
       start.classList.add("_hidden");
+      title.classList.add("_hidden");
       if (!gameStarted) init();
     }, 1000);
     theme.play();
@@ -62,7 +65,6 @@ starter.addEventListener("click", (e) => {
 //starting game
 
 function init() {
-  screen = document.getElementById("screen");
   screen.width = window.innerWidth;
   screen.height = window.innerHeight;
   ctx = screen.getContext("2d");
@@ -84,8 +86,9 @@ function init() {
 
   imagesToLoad = {
     // player_tank: "./media/images/Player_Tank_Anim.png",
-    player_tank_tower: "./media/images/Tower_01.png",
+    player_tank_tower: "./media/images/Tower_02_charged.png",
     player_tank_hull: "./media/images/Hull.png",
+    player_tank_reload: "./media/images/Reload_Tiled.png",
     enemy_tank: "./media/images/Enemy_Tank_Anim.png",
     shot: "./media/images/Shot.png",
     explosion: "./media/images/Explosion.png",
@@ -100,13 +103,17 @@ function init() {
       player = creator.create(
         {
           tag: "player",
-          x: 0,
-          y: 0,
-          width: 128,
-          height: 128,
+          x: 100,
+          y: 120,
+          width: 300,
+          height: 300,
           isCollidable: true,
         },
-        [images["player_tank_hull"], images["player_tank_tower"]],
+        [
+          images["player_tank_hull"],
+          images["player_tank_tower"],
+          images["player_tank_reload"],
+        ],
         0,
         [512, 512, 588, 588],
         2,
@@ -125,7 +132,7 @@ function init() {
             startFrame: 0,
             isRotating: false,
             isInfinit: false,
-            log: true,
+            // log: true,
           },
           {
             framelist: "",
@@ -134,6 +141,21 @@ function init() {
             frameWidth: 512,
             frameHeight: 512,
             duration: 0,
+            frameX: -256,
+            frameY: -256,
+            startFrame: 0,
+            isRotating: true,
+            isInfinit: false,
+            // log: true,
+          },
+          {
+            framelist: "",
+            frameListHeight: 7680,
+            frameListWidth: 7680,
+            frameWidth: 512,
+            frameHeight: 512,
+            duration: 500,
+            totalFrames: 216,
             frameX: -256,
             frameY: -256,
             startFrame: 0,
@@ -150,10 +172,13 @@ function init() {
 }
 
 // main game loop
-
+let deltaTime = 0;
+let prevTime = 0;
 function Game(data, time) {
+  deltaTime = time - prevTime;
+  prevTime = time;
   update(data, time);
-  render(data);
+  render(data, deltaTime);
   id = requestAnimationFrame((time) => {
     Game(gameData, time);
   });
@@ -173,7 +198,15 @@ function update(data, time) {
         data[0].splice(i, 1);
         i--;
       }
-      if (data[0][i]) move(data[0][i]);
+      if (data[0][i]) data[0][i].move();
+      if (
+        data[0][i].tag === "player" &&
+        data[0][i].activeTextures[1].isAnimationEnded
+      ) {
+        console.log("DDDDDDD");
+        data[0][i].setActiveTexture(1, data[0][i].textures[1]);
+        data[0][i].textures[2].reset();
+      }
     }
   }
   if (data[1].length > 0) {
@@ -188,7 +221,7 @@ function update(data, time) {
         i--;
         if (data[1].length === 0) break;
       }
-      if (data[1][i]) move(data[1][i]);
+      if (data[1][i]) data[1][i].move();
     }
   }
   if (data[2].length > 0) {
@@ -203,17 +236,17 @@ function update(data, time) {
       }
     }
   }
-  if (time - prevSetTime > spawnTime) spawnEnemy(time);
+  if (time - prevSetTime > spawnTime); //spawnEnemy(time);
 }
 
 //rendering game objects
 
-function render(data) {
+function render(data, deltaTime) {
   clearScreen();
   drawBG();
-  data[1].forEach((obj) => draw(obj));
-  data[2].forEach((obj) => draw(obj));
-  data[0].forEach((obj) => draw(obj));
+  data[1].forEach((obj) => draw(obj, deltaTime));
+  data[2].forEach((obj) => draw(obj, deltaTime));
+  data[0].forEach((obj) => draw(obj, deltaTime));
 }
 
 function drawBG() {
@@ -232,13 +265,19 @@ function drawBG() {
   ctx.closePath();
 }
 
-function draw(obj) {
+function draw(obj, deltaTime) {
   ctx.beginPath();
   ctx.fillStyle = obj.color;
   if (obj.images.length > 0) {
-    obj.textures.forEach((tex, i) =>
-      tex.frame(obj.images[i].image, obj.images[i].context, 0, 0)
-    );
+    obj.activeTextures.forEach((tex, i) => {
+      tex.frame(
+        obj.images[i].image,
+        obj.images[i].context,
+        deltaTime,
+        obj.rotation >= 0 ? obj.rotation : 0
+      );
+    });
+
     obj.images.forEach((image) =>
       ctx.drawImage(image.image, obj.x, obj.y, obj.width, obj.height)
     );
@@ -312,30 +351,30 @@ function isOutOfScreen(obj) {
   return false;
 }
 
-function move(obj) {
-  if (obj.movement.status === "moving") {
-    switch (obj.movement.direction) {
-      case "up":
-        obj.y -= obj.movement.speed;
-        obj.collider.move(0, -obj.movement.speed);
-        break;
-      case "left":
-        obj.x -= obj.movement.speed;
-        obj.collider.move(-obj.movement.speed);
-        break;
-      case "down":
-        obj.y += obj.movement.speed;
-        obj.collider.move(0, obj.movement.speed);
-        break;
-      case "right":
-        obj.x += obj.movement.speed;
-        obj.collider.move(obj.movement.speed);
-        break;
-      default:
-        break;
-    }
-  }
-}
+// function move(obj) {
+//   if (obj.movement.status === "moving") {
+//     switch (obj.movement.direction) {
+//       case "up":
+//         obj.y -= obj.movement.speed;
+//         obj.collider.move(0, -obj.movement.speed);
+//         break;
+//       case "left":
+//         obj.x -= obj.movement.speed;
+//         obj.collider.move(-obj.movement.speed);
+//         break;
+//       case "down":
+//         obj.y += obj.movement.speed;
+//         obj.collider.move(0, obj.movement.speed);
+//         break;
+//       case "right":
+//         obj.x += obj.movement.speed;
+//         obj.collider.move(obj.movement.speed);
+//         break;
+//       default:
+//         break;
+//     }
+//   }
+// }
 
 function shoot(obj, dir) {
   if (obj.tag === "enemy") {
@@ -393,30 +432,34 @@ function shoot(obj, dir) {
           speed: 10,
           status: "moving",
         },
-        width: 10,
-        height: 10,
-        x: obj.x + bulletPositionX(obj.width, dir),
-        y: obj.y + bulletPositionY(obj.height, dir),
+        rotation: dir,
+        width: 64,
+        height: 64,
+        x: obj.x + obj.width / 2 + (obj.width / 2) * Math.cos(dir) - 32,
+        y: obj.y + obj.height / 2 + (obj.width / 2) * Math.sin(dir) - 32,
+        type: "bullet",
         tag: obj.tag + "_shoot",
         isCollidable: true,
       },
       [images["shot"]],
       0,
-      [10, 10],
+      [128, 128],
       1,
       [
         {
           framelist: "",
-          frameListHeight: 10,
-          frameListWidth: 10,
-          frameWidth: 10,
-          frameHeight: 10,
-          duration: 0,
-          frameX: 0,
-          frameY: 0,
+          frameListHeight: 256,
+          frameListWidth: 1920,
+          frameWidth: 128,
+          frameHeight: 128,
+          duration: 104.16,
+          totalFrames: 30,
+          frameX: -64,
+          frameY: -64,
           startFrame: 0,
-          isRotating: false,
-          isInfinit: false,
+          isRotating: true,
+          isInfinit: true,
+          // log: true,
         },
       ]
     )
@@ -676,6 +719,7 @@ function death() {
   setTimeout(() => {
     starter.classList.remove("_transit");
     start.classList.remove("_hidden");
+    title.classList.remove("_hidden");
     title.classList.remove("_transparent");
     gameStarted = false;
   }, 1900);
@@ -773,6 +817,18 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+document.addEventListener("keyup", (e) => {
+  if (
+    e.code === "KeyW" ||
+    e.code === "KeyA" ||
+    e.code === "KeyS" ||
+    e.code === "KeyD"
+  ) {
+    player.movement.direction = "none";
+    player.movement.status = "stop";
+  }
+});
+
 document.addEventListener("click", (e) => {
   if (gameStarted) {
     let dir = "";
@@ -801,7 +857,30 @@ document.addEventListener("click", (e) => {
       // player.textures[0].setLine(0);
       dir = "up";
     }
-    shoot(player, dir);
+    if (player.activeTextures[1].duration === 0) {
+      shoot(player, player.rotation);
+      player.setActiveTexture(1, player.textures[2]);
+    }
+  }
+});
+
+screen.addEventListener("mousemove", (e) => {
+  if (gameStarted) {
+    let x = e.clientX,
+      y = e.clientY;
+    let distX = x - (player.x + player.width / 2);
+    let distY = y - (player.y + player.height / 2);
+    let deg = Math.atan(distY / distX);
+    // console.log("deg: ", deg);
+    let count = 0;
+    if (distX < 0) count = 2;
+    if (distX >= 0 && distY < 0) count = 4;
+    // console.log("count: ", count);
+    // console.log("count+deg: ", count + deg);
+    player.rotation = (Math.PI / 2) * count + deg;
+    // console.log("deg: ", deg);
+    // console.log("~~~~~~~~~~~~~~~~~~~~~~~~~");
+    // console.log("player.rotation: ", player.rotation);
   }
 });
 

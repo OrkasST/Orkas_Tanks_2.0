@@ -1,3 +1,4 @@
+import { Bullet } from "../objects/Bullet.js";
 import { GameObject } from "../objects/GameObject.js";
 import { CollisionBody } from "../physics/CollisionBody.js";
 import { Animation } from "./Animation.js";
@@ -25,7 +26,11 @@ export class ObjectCreator {
       },
     ]
   ) {
-    let object = new GameObject(objectData);
+    // if (objectData.type === "bullet") debugger;
+    let object =
+      objectData.type === "bullet"
+        ? new Bullet(objectData)
+        : new GameObject(objectData);
     let images = [];
     for (let i = 0; i < imagesCount; i++) {
       images[i] = {};
@@ -42,7 +47,12 @@ export class ObjectCreator {
           framelist: el,
         })
     );
+    for (let i = 0; i < imagesCount; i++)
+      object.setActiveTexture(i, textures[i]);
     object.setImage(images, textures);
+    ////////////////////////////////////////////////////////////////////////////////
+    // if (objectData.type === "bullet") debugger;
+    ////////////////////////////////////////////////////////////////////////////////
     if (object.isCollidable)
       object.collider = new CollisionBody(
         colisionBodyShape || {

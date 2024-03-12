@@ -8,7 +8,7 @@ export class GameObject {
     y = 0,
     width = 0,
     height = 0,
-    rotation = 0,
+    rotation = -1,
     isSpheric = false,
     radius = 0,
 
@@ -45,6 +45,8 @@ export class GameObject {
     this.isDestructive = isDestructive;
     this.isPlayer = isPlayer;
 
+    this.activeTextures = [];
+
     //temp
     this.movement = movement;
     this.time = time;
@@ -58,5 +60,34 @@ export class GameObject {
 
   setAnimation(animations) {
     this.animations = animations;
+  }
+
+  setActiveTexture(imageNumber, texture) {
+    this.activeTextures[imageNumber] = texture;
+  }
+
+  move() {
+    if (this.movement.status === "moving") {
+      switch (this.movement.direction) {
+        case "up":
+          this.y -= this.movement.speed;
+          this.collider.move(0, -this.movement.speed);
+          break;
+        case "left":
+          this.x -= this.movement.speed;
+          this.collider.move(-this.movement.speed);
+          break;
+        case "down":
+          this.y += this.movement.speed;
+          this.collider.move(0, this.movement.speed);
+          break;
+        case "right":
+          this.x += this.movement.speed;
+          this.collider.move(this.movement.speed);
+          break;
+        default:
+          break;
+      }
+    }
   }
 }

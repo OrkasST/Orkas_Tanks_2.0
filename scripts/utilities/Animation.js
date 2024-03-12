@@ -5,6 +5,7 @@ export class Animation {
     frameListWidth,
     frameWidth,
     frameHeight,
+    totalFrames = 1,
     duration,
     frameX = 0,
     frameY = 0,
@@ -22,7 +23,9 @@ export class Animation {
     this.frameListWidth = frameListWidth;
     this.frameWidth = frameWidth;
     this.frameHeight = frameHeight;
+    this.totalFrames = totalFrames;
     this.duration = duration;
+    this.step = duration / totalFrames;
     this.startFrame = startFrame;
     this.frameX = frameX;
     this.frameY = frameY;
@@ -32,14 +35,22 @@ export class Animation {
     this.imageY = imageY;
     this.isInfinit = isInfinit;
     this.isRotating = isRotating;
+    this.startFrame = startFrame;
     this.currentFrame = 0 + startFrame;
     this.line = -1;
     this.column = -1;
     this.log = log;
+    this.isAnimationEnded = false;
   }
 
-  frame(image, context, rotation, number) {
-    // if (this.duration < this.currentFrame) return;
+  frame(image, context, deltaTime, rotation, number) {
+    if (this.totalFrames - 1 < this.currentFrame && this.duration > 0) return;
+    // if (this.log) debugger;
+    if (this.currentFrame > 0 && this.duration > 0) {
+      this.currentFrame += Math.floor(deltaTime / this.step) - 1;
+      if (this.currentFrame >= this.totalFrames)
+        this.currentFrame = this.totalFrames - 1;
+    }
     let sx =
       (this.column >= 0
         ? this.column
@@ -67,6 +78,15 @@ export class Animation {
       context.translate(image.width / 2, image.height / 2);
       context.rotate(rotation);
     }
+    if (this.log) {
+      context.strokeStyle = "#FFFFFF";
+      context.strokeRect(
+        this.frameX,
+        this.frameY,
+        this.frameWidth,
+        this.frameHeight
+      );
+    }
     context.drawImage(
       this.framelist,
       sx,
@@ -79,9 +99,24 @@ export class Animation {
       this.frameHeight
     );
     if (this.isRotating) context.restore();
-    if (!number && this.duration > this.currentFrame) this.currentFrame++;
-    if (this.duration <= this.currentFrame && this.isInfinit)
+    if (!number && this.totalFrames - 1 > this.currentFrame)
+      this.currentFrame++;
+    if (this.totalFrames - 1 <= this.currentFrame && this.isInfinit)
       this.currentFrame = 0;
+    if (
+      this.duration > 0 &&
+      this.totalFrames - 1 <= this.currentFrame &&
+      !this.isAnimationEnded
+    ) {
+      this.isAnimationEnded = true;
+      console.log("this.isAnimationEnded: ", this.isAnimationEnded);
+    }
+    // if (this.log) {
+    //   console.log("this.currentFrame: ", this.currentFrame);
+    //   console.log("sx: ", sx);
+    //   console.log("sy: ", sy);
+    //   console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    // }
   }
 
   setLine(line) {
@@ -89,5 +124,11 @@ export class Animation {
   }
   setColumn(column) {
     this.column = column;
+  }
+
+  reset() {
+    this.currentFrame = 0 + this.startFrame;
+    console.log("this.currentFrame: ", this.currentFrame);
+    this.isAnimationEnded = false;
   }
 }
